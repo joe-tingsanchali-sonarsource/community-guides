@@ -7,7 +7,6 @@ First, we support the following code coverage tools:
 * Visual Studio Code Coverage
 * dotCover
 * OpenCover/Coverlet
-* NCover3
 
 If you do not use any of the above code coverage tools, code coverage import will not work.
 
@@ -15,6 +14,7 @@ Second, when importing code coverage reports, you need to ensure that you specif
 
 * sonar.cs.vscoveragexml.reportsPaths
     * Path to Visual Studio Code Coverage report. Multiple paths may be comma-delimited, or included via wildcards.
+    * Ensure that you have converted the code coverage report from Binary into XML (see "Convert the Code Coverage Report from Binary into XML" section on our [[Coverage & Test Data] Generate Reports for C#, VB.net](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871) Community guide)
 * sonar.cs.dotcover.reportsPaths
     * Path to dotCover coverage report.
 * sonar.cs.opencover.reportsPaths
@@ -24,15 +24,15 @@ Second, when importing code coverage reports, you need to ensure that you specif
 * sonar.vbnet.opencover.reportsPaths
     * Path to OpenCover coverage report.
 
-Third, understand the basics of 
-SonarScanner for MSBuild by reading its docs [here](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-msbuild/), in case you are using it in your pipeline.
-Azure Devops - understand the integration between Azure DevOps and SonarCloud by reading [this guideline](https://azuredevopslabs.com//labs/vstsextend/sonarcloud/)..
+Third, understand the basics of...
+* SonarScanner for MSBuild by reading its docs [here](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-msbuild/), in case you are using it in your pipeline.
+* Azure Devops - understand the integration between Azure DevOps and SonarCloud by reading [this guideline](https://azuredevopslabs.com//labs/vstsextend/sonarcloud/). =====> will add the reference to the yaml file for “Prepare SonarCloudAnalysis” step......
 
 #### How to Get Debug Level Logs
 
-Add `/d:sonar.verbose=true` or `/d:"sonar.verbose=true"` to the
- SonarScanner.MSBuild.exe `begin` command to get more detailed logs. Usually, you will find your error here!
-`SonarCloudPrepare` task in case you are using Azure DevOps
+Add `/d:sonar.verbose=true` or `/d:"sonar.verbose=true"` to the...
+* SonarScanner.MSBuild.exe `begin` command to get more detailed logs ======>should mention the alternative for Azure Devops integration, where the Scanner for MSBuild is hidden
+* `SonarCloudPrepare` task in case you are using Azure DevOps
 
 For example:
 `SonarScanner.MSBuild.exe begin /k:“MyProject” /d:sonar.verbose=true`
