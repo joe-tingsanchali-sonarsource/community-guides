@@ -53,13 +53,21 @@ Make sure you understand the regular expression for matching files and directori
 Here is a resource to understand some other examples: [Pattern matching guide](https://confluence.atlassian.com/fisheye/pattern-matching-guide-960155410.html)
 
 Examples of Correct Usage:
+
+Right :o:
+
 :o: `-d:"sonar.cs.vscoveragexml.reportsPaths=**/*.coveragexml”`
+
 :o: `/d:"sonar.cs.vscoveragexml.reportsPaths=**/jojo_jt 2020-10-14 19_02_26.coveragexml”`(`-` and `/` are valid flag markers)
+
 :o: `-d:"sonar.cs.vscoveragexml.reportsPaths=coveragexml”` (assuming you are running SonarScanner.MSBuild.exe in same directory as your *.coveragexml file)
+
 :o: `-d:"sonar.cs.dotcover.reportsPaths=**/*.html"`
+
 :o: `-d:"sonar.vbnet.opencover.reportsPaths=**/someNameCodeCoverage.xml"`
 
 Wrong :x:
+
 ?
 
 #### Verify Coverage File Exists and Has Content
