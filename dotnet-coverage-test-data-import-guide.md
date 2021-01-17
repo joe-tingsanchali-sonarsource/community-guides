@@ -13,31 +13,26 @@ We support the following code coverage tools:
 If you do not use any of the above code coverage tools, code coverage import will not work.
 
 Understand the basics of...
-* SonarScanner for .NET (formerly known as SonarScanner for MSBuild) by reading its docs [here](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-msbuild/), in case you are using it in your pipeline.
-* Azure Devops - understand the integration between Azure DevOps and SonarCloud by reading [this Azure DevOps Lab](https://azuredevopslabs.com//labs/vstsextend/sonarcloud/).
-  * As an example, you need to ensure that “Prepare Analysis Configuration” Task contains the proper code coverage parameters:
-  ```yaml
-    - task: SonarCloudPrepare@1
-      inputs:
-      SonarCloud: 'sonarcloud'
-      organization: 'myorganization'
-      scannerMode: 'MSBuild'
-      projectKey: 'MBison_CSharpProject'
-      projectName: 'CSharpProject'
-      extraProperties: |
-        sonar.cs.vstest.reportsPaths=**/*.trx
-        sonar.cs.vscoveragexml.reportsPaths=**/*.coveragexml
-        sonar.verbose=true
-    ```
+* SonarScanner for .NET (formerly known as SonarScanner for MSBuild) by reading its [documentation](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-msbuild/)
+* If you're using Azure DevOps...
+  * Understand the integration between Azure DevOps and SonarCloud by reading [this Azure DevOps Lab](https://azuredevopslabs.com//labs/vstsextend/sonarcloud/).
+  * How code coverage test files are automatically detected as explained in the [Code Coverage](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-msbuild/#header-5) section for SonarScanner for .NET:
+    * Auto-search for `.trx` files
+    * `.coverage` auto-converts to `.coveragexml` via CodeCoverage.exe
+  * Know how to construct your pipeline correctly
+    * Install appropriate platform dependencies
+    * “Prepare Analysis Configuration” task contains proper code coverage parameters
+    * "Run Code Analysis" and "Publish Quality Gate Result" tasks are also added to your pipeline
 
 # Troubleshooting steps
 
 * Are you using a valid version of your code coverage tool?
 
-* Are the reports in the right format? (need to check which file type matches which code coverage tool)
+* Are the reports in the right format?
+  * Verify which file type matches which code coverage tool
 
 * Do the reports even exist?
- If you see the following, then ensure the report generation for your code coverage tool actually produced a file and has content in it.
+  * If you see the following, then ensure the report generation for your code coverage tool actually produced a file and has content in it.
  
      ```
      WARN: The Code Coverage report doesn’t contain any coverage data for the included files.
@@ -51,31 +46,33 @@ Understand the basics of...
 * Did you specify the correct report path property to import the report at the right step?
 When importing code coverage reports, you need to ensure that you specify the report path with your associated code coverage tool's property for the SonarScanner.MSBuild.exe `begin` command, as detailed in [Test Coverage](https://docs.sonarqube.org/latest/analysis/coverage/):
 
-    * sonar.cs.vscoveragexml.reportsPaths
-        * Path to Visual Studio Code Coverage report. Multiple paths may be comma-delimited, or included via wildcards.
-        * Ensure that you have converted the code coverage report from Binary into XML (see "Convert the Code Coverage Report from Binary into XML" section on our [[Coverage & Test Data] Generate Reports for C#, VB.net](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871) Community guide)
-    * sonar.vbnet.vscoveragexml.reportsPaths
-    * sonar.cs.dotcover.reportsPaths
-        * Path to dotCover coverage report.
-    * sonar.cs.opencover.reportsPaths
-        * Path to OpenCover coverage report.
-    * sonar.vbnet.dotcover.reportsPaths
-        * Path to dotCover coverage report.
-    * sonar.vbnet.opencover.reportsPaths
-        * Path to OpenCover coverage report.
+    * `sonar.cs.vscoveragexml.reportsPaths`
+      * Path to Visual Studio code coverage report for C#. Multiple paths may be comma-delimited, or included via wildcards.
+      * Ensure that you have converted the code coverage report from Binary into XML (see "Convert the Code Coverage Report from Binary into XML" section on our [[Coverage & Test Data] Generate Reports for C#, VB.net](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871) Community guide)
+    * `sonar.cs.dotcover.reportsPaths`
+      * Path to dotCover coverage report for C#.
+    * `sonar.cs.opencover.reportsPaths`
+      * Path to OpenCover coverage report for C#.
+    * `sonar.vbnet.vscoveragexml.reportsPaths`
+      * Path to Visual Studio code coverage report for VB.NET.
+    * `sonar.vbnet.dotcover.reportsPaths`
+      * Path to dotCover coverage report for VB.NET.
+    * `sonar.vbnet.opencover.reportsPaths`
+      * Path to OpenCover coverage report for VB.NET.
 
 * Did you specify the correct path to your code coverage file?
 
-    Make sure you understand the regular expression for matching files and directories:
+  * Make sure you understand the regular expression for matching files and directories:
+
     |Symbol|Meaning|
     |---|---|
     |?|a single character|
     |*|any number of characters|
     |**|any number of directories|
     
-    Here is a resource to understand some other examples: [Pattern matching guide](https://confluence.atlassian.com/fisheye/pattern-matching-guide-960155410.html)
+  * Here is a resource to understand some other examples: [Pattern matching guide](https://confluence.atlassian.com/fisheye/pattern-matching-guide-960155410.html)
 
-    Examples of Correct Usage:
+  * Examples of Correct and Incorrect Usage
     
     **Right** ✅
     
@@ -102,25 +99,40 @@ When importing code coverage reports, you need to ensure that you specify the re
     
     **Wrong** ❌
     
-    ❌  Don't point at directories but files
+    ❌  Don't point at directories. **How to fix:** point to files.
     
     ```-d:"sonar.cs.vscoveragexml.reportsPaths=coverage/"```
         
-    ❌ Don't use absolute paths, favor paths relative to the project root directory
+    ❌ Don't use absolute paths. **How to fix:** favor paths relative to the project root directory.
     
     ```-d:"sonar.cs.vscoveragexml.reportsPaths=C:\users\joe\project\coverage\*.xml"```
         
-    ❌ Don't point files that are not under the project root directory, always generate coverage under this home directory
+    ❌ Don't point files that are not under the project root directory. **How to fix:** always generate the coverage report under the directory where you run the command from.
   
     ```-d:"sonar.cs.vscoveragexml.reportsPaths=..\coverage\*.xml"```
 
 * Do you know how to get debug logs?
 
     * Add `/d:"sonar.verbose=true"` to the...
-        * SonarScanner.MSBuild.exe `begin` command to get more detailed logs (TODO======>should mention the alternative for Azure Devops integration, where the Scanner for MSBuild is hidden)
+        * SonarScanner.MSBuild.exe `begin` command to get more detailed logs
             * For example: `SonarScanner.MSBuild.exe begin /k:"MyProject" /d:"sonar.verbose=true"`
-        * `SonarCloudPrepare` task if you are using Azure DevOps
-    * The parsing and import of code coverage happens during the Scanner for MSBuild `end` command (the Azure Devops `SonarCloudAnalyze` task).
+        * `SonarQubePrepare` or `SonarCloudPrepare` task's `extraProperties` argument if you are using Azure DevOps
+            * For example:
+              ```markdown
+              # Applies to SonarQubePrepare as well
+              - task: SonarCloudPrepare@1
+                  inputs:
+                    SonarCloud: 'sonarcloud'
+                    organization: 'zucchinibreadco'
+                    scannerMode: 'MSBuild'
+                    projectKey: 'zuchhinibreadco_sonar-scanning-someconsoleapp'
+                    projectName: 'sonar-scanning-someconsoleapp'
+                    extraProperties: |
+                      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)\**\*.trx
+                      sonar.cs.vscoveragexml.reportsPaths=$(Agent.TempDirectory)\**\*.coveragexml
+                      sonar.verbose=true
+              ``` 
+    * The parsing and import of code coverage happens during the Scanner for MSBuild `end` command (a.k.a. the Azure DevOps `SonarQubeAnalyze` or `SonarCloudAnalyze` task).
 
 # Specific problems
 
