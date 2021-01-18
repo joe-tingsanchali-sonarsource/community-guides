@@ -44,7 +44,7 @@ Understand the basics of...
 * Do the reports contain valid information for the expected set of files? (give examples)
 
 * Did you specify the correct report path property to import the report at the right step?
-  * When importing code coverage reports, you need to ensure that you specify the report path with your associated code coverage tool's property for the SonarScanner.MSBuild.exe `begin` command, as detailed in [Test Coverage](https://docs.sonarqube.org/latest/analysis/coverage/):
+  * When importing code coverage reports, you need to ensure that you specify the report path with your associated code coverage tool's property for the SonarScanner.MSBuild.exe or dotnet `begin` command, as detailed in [Test Coverage](https://docs.sonarqube.org/latest/analysis/coverage/):
 
     * `sonar.cs.vscoveragexml.reportsPaths`
       * Path to Visual Studio Code coverage report for C#. Multiple paths may be comma-delimited, or included via wildcards.
@@ -89,7 +89,7 @@ Understand the basics of...
     ✅ `-` and `/` are valid flag markers
     `/d:"sonar.verbose=true` or `-d:"sonar.verbose=true"` 
   
-    ✅ Report path is relative to the directory where you run SonarScanner for MSBuild
+    ✅ Report path is relative to the directory where you run SonarScanner for 'MSBuild'
     `-d:"sonar.cs.vscoveragexml.reportsPaths=coveragexml"`
     
     **Wrong** ❌
@@ -105,7 +105,7 @@ Understand the basics of...
 
 * Do you know how to get debug logs?
   * Add `/d:"sonar.verbose=true"` to the...
-    * SonarScanner.MSBuild.exe `begin` command to get more detailed logs
+    * SonarScanner.MSBuild.exe or dotnet `begin` command to get more detailed logs
       * For example: `SonarScanner.MSBuild.exe begin /k:"MyProject" /d:"sonar.verbose=true"`
     * "SonarQubePrepare" or "SonarCloudPrepare" task's `extraProperties` argument if you are using Azure DevOps
       * For example:
@@ -131,10 +131,10 @@ Understand the basics of...
 
   The report generation process must be executed after the build step and before the scanner `end` step. The following steps detail importing .NET reports:
 
-  1. Run the SonarScanner.MSBuild.exe `begin` command, specifying the absolute path where the reports will be available using the /d:propertyKey="path" syntax ("propertyKey" depends on the tool)
-  2. Build your project using MSBuild
-  3. Run your test tool, instructing it to produce a report at the same location specified earlier to the MSBuild SonarQube Runner (How to generate reports with different tools)
-  4. Run the SonarScanner.MSBuild.exe `end` command
+  1. Run the SonarScanner.MSBuild.exe (or dotnet) `begin` command, specifying the absolute path where the reports will be available using the `/d:propertyKey="path"` syntax ("propertyKey" depends on the tool)
+  2. Build your project using MSBuild (or dotnet)
+  3. Run your test tool, instructing it to produce a report at the same location specified earlier to the MSBuild/dotnet SonarQube runner (see [How to generate reports with different tools](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871))
+  4. Run the SonarScanner.MSBuild.exe (or dotnet) `end` command
 
 * **Projects being considered as test projects by the Sonar Scanner for .NET**
 
@@ -155,10 +155,19 @@ Understand the basics of...
   ```text
   DEBUG: '<PATH\FILE.cs>' indexed with language 'cs'
   ```
+  or
+  ```text
+  DEBUG: '<PATH\FILE.vb>' indexed with language 'vb'
+  ```
   
   Then if the paths inside the coverage file differ from the path of the indexed files, look for this log:
   
   ```text
   INFO: Parsing the OpenCover report <FILE PATH>
   DEBUG: Skipping file with path '<PATH\FILE.cs>' because it is not indexed or does not have the supported language.
+  ```
+  or
+  ```text
+  INFO: Parsing the OpenCover report <FILE PATH>
+  DEBUG: Skipping file with path '<PATH\FILE.vb>' because it is not indexed or does not have the supported language.
   ```
